@@ -19,7 +19,6 @@ import com.squareup.haha.perflib.ArrayInstance;
 import com.squareup.haha.perflib.ClassInstance;
 import com.squareup.haha.perflib.ClassObj;
 import com.squareup.haha.perflib.Field;
-import com.squareup.haha.perflib.Heap;
 import com.squareup.haha.perflib.Instance;
 import com.squareup.haha.perflib.Type;
 import java.util.HashSet;
@@ -92,21 +91,7 @@ public final class HahaHelper {
         offset = fieldValue(values, "offset");
       }
     } else {
-      // In M preview 2, the underlying char buffer resides in the heap with ID equaling the
-      // String's ID + 16.
-      // https://android-review.googlesource.com/#/c/160380/2/android/src/com/android/tools/idea/
-      // editors/hprof/descriptors/InstanceFieldDescriptorImpl.java
-      // This workaround is only needed for M preview 2, as it has been fixed on the hprof
-      // generation end by reintroducing a virtual "value" variable.
-      // https://android.googlesource.com/platform/art/+/master/runtime/hprof/hprof.cc#1242
-      Heap heap = instance.getHeap();
-      Instance inlineInstance = heap.getInstance(instance.getId() + 16);
-      if (isCharArray(inlineInstance)) {
-        charArray = (ArrayInstance) inlineInstance;
-        offset = 0;
-      } else {
-        throw new UnsupportedOperationException("Could not find char array in " + instance);
-      }
+      throw new UnsupportedOperationException("Could not find char array in " + instance);
     }
     checkNotNull(count, "count");
     checkNotNull(charArray, "charArray");
